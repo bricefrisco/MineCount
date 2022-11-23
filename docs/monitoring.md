@@ -28,23 +28,24 @@ At the time of writing:
 
 1. In the Grafana console, navigate to `Integrations and Connections` and select `Hosted logs`.
 2. Choose an API key name, and copy the `client.url` value
-3. Start this docker container which forwards logs, replacing the deprecated `/api/prom/push` endpoint with the newer `/loki/api/v1/push`.
-
-   ```console
-   docker run -d --name=grafana-loki \
-   --log-driver=loki \
-   --log-opt loki-url="https://<user_id>:<password>@logs-us-west1.grafana.net/loki/api/v1/push" \
-   --log-opt loki-retries=5 \
-   --log-opt loki-batch-size=400 \
-   grafana/grafana
-   ```
-4. Change the Loki logging driver to be the default for all containers by creating or modifying `/etc/docker/daemon.json` and set the value of `log-driver` to `loki`:
+3. Change the Loki logging driver to be the default for all containers by creating or modifying `/etc/docker/daemon.json` and set the value of `log-driver` to `loki`. Replace the deprecated `/api/prom/push` endpoint with the newer `/loki/api/v1/push`
 
    ```json
    {
-      "debug": true,
-      "log-driver": "loki"
+     "debug": true,
+     "log-driver": "loki",
+     "log-opts": {
+       "loki-url": "https://<user_id>:<password>@logs-prod3.grafana.net/loki/api/v1/push",
+       "loki-retries": "5",
+       "loki-batch-size": "400"
+     }
    }
    ```
 
-5. Restart Docker daemon for the changes to take effect. All *newly created* containers from that host will then send logs to Loki via the driver.
+4. Restart Docker daemon for the changes to take effect. All _newly created_ containers from that host will then send logs to Loki via the driver.
+
+5. Start the grafana container
+
+   ```console
+   docker run -d --restart=unless-stopped --name=grafana-loki grafana/grafana
+   ```
