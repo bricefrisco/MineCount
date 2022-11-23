@@ -91,14 +91,10 @@ public class ServersResource {
         return response;
     }
 
-    @GET
-    @Path("/ping/{ip}")
-    public MCPingResponse ping(@PathParam("ip") String ip) throws IOException {
-        return MCPing.getPing(ip);
-    }
-
     @PUT
-    public ServerDTO updateServer(ModifyServerRequest request) {
+    public ServerDTO updateServer(ModifyServerRequest request, @HeaderParam("Authorization") String token) {
+        AuthorizationService.validate(token, Claim.UPDATE_SERVERS);
+
         if (request == null) {
             throw new BadRequestException("Request cannot be blank.");
         }
@@ -112,6 +108,12 @@ public class ServersResource {
         }
 
         return databaseService.updateServer(request);
+    }
+
+    @GET
+    @Path("/ping/{ip}")
+    public MCPingResponse ping(@PathParam("ip") String ip) throws IOException {
+        return MCPing.getPing(ip);
     }
 
     @POST
