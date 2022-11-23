@@ -1,0 +1,17 @@
+[
+    {
+        "id": "redeploy-webhook",
+        "execute-command": "sh /var/scripts/redeploy.sh",
+        "command-working-directory": "/var/webhook",
+        "trigger-rule": {
+            "match": {
+                "type": "regex",
+                "regex": "secret-replace-me",
+                "parameter": {
+                    "source": "header",
+                    "name": "Authorization"
+                }
+            }
+        }
+    }
+]
